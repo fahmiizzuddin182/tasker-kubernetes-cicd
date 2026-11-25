@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasker</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="app-container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <h2>Tasker</h2>
+        </div>
+
+        <p class="sidebar-heading">WORKSPACE</p>
+
+        <nav>
+            <a href="#" class="nav-link active" data-filter="all">
+                Dashboard
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <p>Tasker</p>
+            <small>Your personal task management system.</small>
+            <small>1.0.0</small>
+        </div>
+    </aside>
+
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <h1>Dashboard</h1>
+                <p>Here's an overview of your tasks.</p>
+            </div>
+
+            <button id="openTaskForm" class="primary-button">
+                + Add New Task
+            </button>
+        </header>
+
+
+        <!-- Statistics -->
+        <section class="stats-grid">
+
+            <div class="stat-card">
+                <p>Total Tasks</p>
+                <h2 id="totalTasks">0</h2>
+            </div>
+
+            <div class="stat-card">
+                <p>Pending</p>
+                <h2 id="pendingTasks">0</h2>
+            </div>
+
+            <div class="stat-card">
+                <p>Completed</p>
+                <h2 id="completedTasks">0</h2>
+            </div>
+
+            <div class="stat-card">
+                <p>Overdue</p>
+                <h2 id="overdueTasks">0</h2>
+            </div>
+
+        </section>
+
+
+        <!-- Upcoming Deadlines -->
+        <section class="dashboard-section">
+            <div class="section-heading">
+                <div>
+                    <h2>Upcoming Deadlines</h2>
+                    <p>Tasks that need your attention.</p>
+                </div>
+            </div>
+
+            <div id="upcomingTasks" class="upcoming-list">
+                <p>Loading deadlines...</p>
+            </div>
+        </section>
+
+
+        <!-- Task Management -->
+        <section class="dashboard-section">
+
+            <div class="section-heading">
+                <div>
+                    <h2>My Tasks</h2>
+                    <p>Manage and track your activities.</p>
+                </div>
+            </div>
+
+            <div class="task-toolbar">
+
+                <input
+                    type="text"
+                    id="searchTasks"
+                    placeholder="Search tasks..."
+                >
+
+                <select id="priorityFilter">
+                    <option value="all">All Priorities</option>
+                    <option value="High">High Priority</option>
+                    <option value="Medium">Medium Priority</option>
+                    <option value="Low">Low Priority</option>
+                </select>
+
+                <select id="statusFilter">
+                    <option value="all">All Statuses</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Completed">Completed</option>
+                </select>
+
+            </div>
+
+            <div id="tasks" class="tasks-list">
+                <p>Loading tasks...</p>
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- Add Task Modal -->
+<div id="taskModal" class="modal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+            <h2>Add New Task</h2>
+            <button type="button" id="closeTaskForm" class="close-button">
+                &times;
+            </button>
+        </div>
+
+        <form id="taskForm">
+
+            <label for="title">Task Title</label>
+            <input
+                type="text"
+                id="title"
+                placeholder="What needs to be done?"
+                required
+            >
+
+            <label for="description">Description</label>
+            <textarea
+                id="description"
+                placeholder="Add some details..."
+            ></textarea>
+
+            <label for="priority">Priority</label>
+            <select id="priority">
+                <option value="Low">Low</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="High">High</option>
+            </select>
+
+            <label for="due_date">Due Date</label>
+            <input type="date" id="due_date">
+
+            <div class="modal-actions">
+                <button type="button" id="cancelTask" class="secondary-button">
+                    Cancel
+                </button>
+
+                <button type="submit" class="primary-button">
+                    Create Task
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>
+
