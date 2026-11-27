@@ -1,4 +1,5 @@
-from flask import Blueprint, jsonify, request, render_template
+from flask import Blueprint, jsonify, render_template, request
+
 from app.database import get_db_connection
 
 main = Blueprint("main", __name__)

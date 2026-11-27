@@ -2,8 +2,7 @@ import os
 
 import pytest
 
-from app import create_app
-import app.database as database
+from app import create_app, database
 
 
 @pytest.fixture
