@@ -1,0 +1,79 @@
+
+name: Tasker CD Pipeline
+
+on:
+  workflow_run:
+    workflows:
+      - Tasker CI Pipeline
+    types:
+      - completed
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to Minikube
+    runs-on: self-hosted
+
+    if: >
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.conclusion == 'success'
+
+    steps:
+      # 1. Check out the exact commit that passed CI
+      - name: Checkout validated commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      # 2. Configure Kubernetes authentication
+      - name: Configure Kubernetes access
+        env:
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG_B64 }}
+        run: |
+          mkdir -p "$HOME/.kube"
+          printf '%s' "$KUBECONFIG_DATA" | base64 -d > "$HOME/.kube/config"
+          chmod 600 "$HOME/.kube/config"
+
+      # 3. Check Kubernetes connection
+      - name: Check cluster connection
+        run: |
+          kubectl get nodes
+
+      # 4. Apply Kubernetes configuration
+      - name: Apply Kubernetes configuration
+        run: |
+          kubectl apply -f k8s/configmap.yaml
+          kubectl apply -f k8s/service.yaml
+
+      # 5. Deploy the exact Docker image published by CI
+      - name: Deploy validated Docker image
+        env:
+          IMAGE_TAG: sha-${{ github.event.workflow_run.head_sha }}
+        run: |
+          sed "s|image: .*|image: fahmiizzuddin182/tasker:${IMAGE_TAG}|" k8s/deployment.yaml | kubectl apply -f -
+
+      # 6. Wait for Kubernetes rolling update
+      - name: Wait for deployment rollout
+        run: |
+          kubectl rollout status deployment/tasker --timeout=180s
+
+      # 7. Verify application availability
+      - name: Verify Tasker health
+        run: |
+          POD_NAME=$(kubectl get pods -l app=tasker -o jsonpath='{.items[0].metadata.name}')
+          kubectl exec "$POD_NAME" -- python -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=5).read().decode())"
+
+      # 8. Report successful deployment
+      - name: Deployment successful
+        if: success()
+        run: echo "Tasker deployment completed successfully."
+
+      # 9. Report failed deployment
+      - name: Deployment failed
+        if: failure()
+        run: echo "Tasker deployment failed. Check the preceding workflow logs."
